@@ -19,7 +19,9 @@ import {
   TriangleAlert,
   XCircle,
 } from "lucide-react";
-import { SiteHeader } from "@/components/pawroute/brand";
+import { DemoBanner, SiteHeader } from "@/components/pawroute/brand";
+import { DemoGate } from "@/components/pawroute/demo-gate";
+import { getPublicConfig } from "@/lib/booking.functions";
 import { exceptions, todaysRoute, type Exception } from "@/lib/pawroute-data";
 
 export const Route = createFileRoute("/owner")({
@@ -41,7 +43,15 @@ export const Route = createFileRoute("/owner")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: OwnerDashboard,
+  loader: () => getPublicConfig(),
+  component: function Gated() {
+    const cfg = Route.useLoaderData();
+    return (
+      <DemoGate mode={cfg.mode}>
+        <OwnerDashboard />
+      </DemoGate>
+    );
+  },
 });
 
 function OwnerDashboard() {
@@ -52,6 +62,7 @@ function OwnerDashboard() {
     return (
       <div className="min-h-screen bg-background">
         <SiteHeader active="owner" />
+        <DemoBanner />
         <ExceptionDetail
           exception={open}
           decision={resolved[open.id]}
@@ -67,10 +78,11 @@ function OwnerDashboard() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader active="owner" />
+      <DemoBanner />
       <main className="mx-auto w-full max-w-[1280px] px-4 pb-20 pt-7 sm:px-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="min-w-0">
-             <p className="label-eyebrow">Saturday, October 4 · Example workflow</p>
+            <p className="label-eyebrow">Saturday, October 4 · Example workflow</p>
             <h1 className="mt-1 text-3xl sm:text-4xl">Good morning, Maya.</h1>
           </div>
           <span className="inline-flex items-center gap-2 rounded-full border border-sage/60 bg-accent/50 px-3 py-1.5 text-xs font-bold text-teal">
@@ -94,9 +106,13 @@ function OwnerDashboard() {
               <div className="mt-4 border-t border-primary/20 pt-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="label-eyebrow text-teal">Today&apos;s route</p>
-                  <span className="rounded border border-amber/60 bg-amber/15 px-2 py-0.5 text-[11px] font-extrabold uppercase text-amber-foreground">Example route comparison</span>
+                  <span className="rounded border border-amber/60 bg-amber/15 px-2 py-0.5 text-[11px] font-extrabold uppercase text-amber-foreground">
+                    Example route comparison
+                  </span>
                 </div>
-                <p className="mt-1.5 font-display text-lg leading-snug">River Heights → Corydon → St. Vital → St. Boniface</p>
+                <p className="mt-1.5 font-display text-lg leading-snug">
+                  River Heights → Corydon → St. Vital → St. Boniface
+                </p>
                 <div className="mt-3 flex flex-wrap items-end gap-x-6 gap-y-2">
                   <p className="font-display text-3xl leading-none">
                     <span className="text-ink-soft line-through decoration-1">94 min</span>
@@ -104,24 +120,41 @@ function OwnerDashboard() {
                     48 min
                   </p>
                   <p className="text-sm font-bold">
-                    Drive time avoided: <span className="font-display text-2xl text-teal">46 min</span>
+                    Drive time avoided:{" "}
+                    <span className="font-display text-2xl text-teal">46 min</span>
                   </p>
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">Naive booking order vs PawRoute order, example route.</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Naive booking order vs PawRoute order, example route.
+                </p>
               </div>
             </section>
 
             <section className="grid gap-3 sm:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
               <div className="rounded-lg border-2 border-primary bg-surface p-4 shadow-[var(--shadow-lift)]">
                 <p className="label-eyebrow text-teal">New request · inserted automatically</p>
-                <p className="mt-1 font-display text-2xl leading-tight">Bailey · St. Vital · 2:30 PM</p>
-                <p className="mt-0.5 text-sm text-ink-soft">Inserted between existing stops · 90 min · afternoon</p>
+                <p className="mt-1 font-display text-2xl leading-tight">
+                  Bailey · St. Vital · 2:30 PM
+                </p>
+                <p className="mt-0.5 text-sm text-ink-soft">
+                  Inserted between existing stops · 90 min · afternoon
+                </p>
                 <ul className="mt-2.5 grid gap-1 text-sm font-semibold sm:grid-cols-2">
-                  {["+8 min route impact", "No downstream conflict", "Perfect preference match", "Auto-confirmed after deposit"].map((x) => (
-                    <li key={x} className="flex items-center gap-1.5"><CheckCircle2 className="size-3.5 shrink-0 text-sage" />{x}</li>
+                  {[
+                    "+8 min route impact",
+                    "No downstream conflict",
+                    "Perfect preference match",
+                    "Auto-confirmed after deposit",
+                  ].map((x) => (
+                    <li key={x} className="flex items-center gap-1.5">
+                      <CheckCircle2 className="size-3.5 shrink-0 text-sage" />
+                      {x}
+                    </li>
                   ))}
                 </ul>
-                <p className="mt-3 inline-flex rounded-md bg-primary px-3 py-1.5 text-sm font-extrabold text-primary-foreground">Owner action: none</p>
+                <p className="mt-3 inline-flex rounded-md bg-primary px-3 py-1.5 text-sm font-extrabold text-primary-foreground">
+                  Owner action: none
+                </p>
               </div>
               {exceptions[0] && !resolved[exceptions[0].id] ? (
                 <button
@@ -129,39 +162,56 @@ function OwnerDashboard() {
                   onClick={() => setOpen(exceptions[0]!)}
                   className="rounded-lg border-2 border-amber/80 bg-amber/12 p-4 text-left transition-colors hover:bg-amber/20"
                 >
-                  <p className="label-eyebrow flex items-center gap-1.5 text-amber-foreground"><TriangleAlert className="size-3.5" />Exception</p>
+                  <p className="label-eyebrow flex items-center gap-1.5 text-amber-foreground">
+                    <TriangleAlert className="size-3.5" />
+                    Exception
+                  </p>
                   <p className="mt-1 font-display text-xl leading-tight">Potential bite history</p>
                   <p className="mt-0.5 text-sm text-ink-soft">Rocco · Border Collie</p>
-                  <p className="mt-3 text-sm font-extrabold text-amber-foreground">Needs Maya&apos;s judgment</p>
-                  <p className="mt-1 inline-flex items-center gap-1 text-xs font-bold text-foreground">Review <ArrowRight className="size-3.5" /></p>
+                  <p className="mt-3 text-sm font-extrabold text-amber-foreground">
+                    Needs Maya&apos;s judgment
+                  </p>
+                  <p className="mt-1 inline-flex items-center gap-1 text-xs font-bold text-foreground">
+                    Review <ArrowRight className="size-3.5" />
+                  </p>
                 </button>
               ) : (
-                <div className="rounded-lg border border-border bg-surface p-4 text-sm font-semibold">Bite history reviewed.</div>
+                <div className="rounded-lg border border-border bg-surface p-4 text-sm font-semibold">
+                  Bite history reviewed.
+                </div>
               )}
             </section>
 
             <section className="rounded-lg border border-dashed border-amber/70 bg-amber/8 p-4">
-              <p className="label-eyebrow flex items-center gap-1.5 text-amber-foreground"><ShieldCheck className="size-3.5" />Schedule protected</p>
+              <p className="label-eyebrow flex items-center gap-1.5 text-amber-foreground">
+                <ShieldCheck className="size-3.5" />
+                Schedule protected
+              </p>
               <p className="mt-1.5 text-sm font-bold">4:30 PM is available, but not offered.</p>
               <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm font-semibold">
                 {["+31 min travel", "Backtracking", "Risk of delaying Coco"].map((x) => (
-                  <li key={x} className="flex items-center gap-1.5"><XCircle className="size-3.5 text-amber-foreground" />{x}</li>
+                  <li key={x} className="flex items-center gap-1.5">
+                    <XCircle className="size-3.5 text-amber-foreground" />
+                    {x}
+                  </li>
                 ))}
               </ul>
             </section>
 
-
             <section className="grid divide-y divide-border rounded-lg border border-border bg-surface px-4 sm:grid-cols-2 sm:divide-x sm:divide-y-0">
-                <div className="py-3 sm:pr-5">
-                  <p className="label-eyebrow">Before</p>
-                  <p className="mt-1 text-sm font-bold">Customer asks for an afternoon slot</p>
-                  <p className="mt-1 text-xs leading-relaxed text-ink-soft">Owner checks calendar + duration + location + route + price + deposit + confirmation</p>
-                </div>
-                <div className="py-3 sm:pl-5">
-                  <p className="label-eyebrow text-teal">PawRoute</p>
-                  <p className="mt-1 text-sm font-bold">One request · one recommended slot</p>
-                  <p className="mt-1 text-xs font-bold text-teal">Owner action: none</p>
-                </div>
+              <div className="py-3 sm:pr-5">
+                <p className="label-eyebrow">Before</p>
+                <p className="mt-1 text-sm font-bold">Customer asks for an afternoon slot</p>
+                <p className="mt-1 text-xs leading-relaxed text-ink-soft">
+                  Owner checks calendar + duration + location + route + price + deposit +
+                  confirmation
+                </p>
+              </div>
+              <div className="py-3 sm:pl-5">
+                <p className="label-eyebrow text-teal">PawRoute</p>
+                <p className="mt-1 text-sm font-bold">One request · one recommended slot</p>
+                <p className="mt-1 text-xs font-bold text-teal">Owner action: none</p>
+              </div>
             </section>
 
             <section className="rounded-lg border border-border bg-surface p-4">
@@ -173,9 +223,14 @@ function OwnerDashboard() {
                   ["4", "Bookings confirmed"],
                   ["2", "Reschedules handled automatically"],
                 ].map(([value, label], index) => (
-                  <div key={label} className={`min-w-0 px-3 py-2 first:pl-0 sm:py-0 ${index === 2 ? "pl-0 sm:pl-3" : ""}`}>
+                  <div
+                    key={label}
+                    className={`min-w-0 px-3 py-2 first:pl-0 sm:py-0 ${index === 2 ? "pl-0 sm:pl-3" : ""}`}
+                  >
                     <p className="font-display text-2xl leading-none">{value}</p>
-                    <p className="mt-1 text-[11px] font-semibold leading-snug text-muted-foreground">{label}</p>
+                    <p className="mt-1 text-[11px] font-semibold leading-snug text-muted-foreground">
+                      {label}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -186,18 +241,23 @@ function OwnerDashboard() {
               <div className="mt-2.5 grid divide-y divide-border rounded-lg border border-border bg-surface sm:grid-cols-2 sm:divide-x sm:divide-y-0">
                 <div className="p-4">
                   <p className="text-sm font-bold text-teal">Normal bookings</p>
-                  <p className="mt-1 text-xs text-ink-soft">Inquiry, quote, route, deposit and confirmation run without Maya.</p>
+                  <p className="mt-1 text-xs text-ink-soft">
+                    Inquiry, quote, route, deposit and confirmation run without Maya.
+                  </p>
                 </div>
                 <div className="p-4">
                   <p className="text-sm font-bold text-amber-foreground">Exceptions</p>
-                  <p className="mt-1 text-xs text-ink-soft">Only these reach Maya: bite history, outside service zone, unusually long service, route impact above threshold.</p>
+                  <p className="mt-1 text-xs text-ink-soft">
+                    Only these reach Maya: bite history, outside service zone, unusually long
+                    service, route impact above threshold.
+                  </p>
                 </div>
               </div>
             </section>
 
             <section>
               <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-                 <h2 className="label-eyebrow">Exceptions · need Maya&apos;s judgment</h2>
+                <h2 className="label-eyebrow">Exceptions · need Maya&apos;s judgment</h2>
                 <span className="text-xs text-muted-foreground">Exceptions only</span>
               </div>
               <div className="mt-2.5 space-y-3">
@@ -221,7 +281,11 @@ function OwnerDashboard() {
                         <MapPin className="mt-0.5 size-4 shrink-0 text-amber-foreground" />
                       )}
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-bold">{e.kind === "behavior" ? "Bite history → review" : "Outside service zone → approve travel fee"}</p>
+                        <p className="text-sm font-bold">
+                          {e.kind === "behavior"
+                            ? "Bite history → review"
+                            : "Outside service zone → approve travel fee"}
+                        </p>
                         <p className="mt-0.5 text-sm text-ink-soft">{e.summary}</p>
                         <p className="mt-1.5 text-xs text-muted-foreground">
                           {e.dog} · {e.customer}
@@ -262,7 +326,10 @@ function OwnerDashboard() {
 
               <ol className="mt-4 space-y-4">
                 {todaysRoute.map((s, i, arr) => (
-                  <li key={s.time} className={`flex gap-3 ${i < arr.length - 1 ? "route-line" : ""}`}>
+                  <li
+                    key={s.time}
+                    className={`flex gap-3 ${i < arr.length - 1 ? "route-line" : ""}`}
+                  >
                     <span
                       className={`mt-1 grid size-[0.9375rem] shrink-0 place-items-center rounded-full border-2 ${
                         s.status === "done"
@@ -301,7 +368,10 @@ function OwnerDashboard() {
             </section>
 
             <section className="panel p-5">
-              <h2 className="label-eyebrow flex items-center gap-1.5"><SlidersHorizontal className="size-3.5" />Operating constraints</h2>
+              <h2 className="label-eyebrow flex items-center gap-1.5">
+                <SlidersHorizontal className="size-3.5" />
+                Operating constraints
+              </h2>
               <ul className="mt-3 space-y-2 text-sm">
                 {[
                   ["Max extra travel", "15 min"],
@@ -310,21 +380,26 @@ function OwnerDashboard() {
                   ["Cross-city backtracking", "Avoid"],
                   ["Customer preference", "Respect"],
                 ].map(([k, v]) => (
-                  <li key={k} className="flex items-baseline justify-between gap-3 border-b border-border pb-2 last:border-0 last:pb-0">
+                  <li
+                    key={k}
+                    className="flex items-baseline justify-between gap-3 border-b border-border pb-2 last:border-0 last:pb-0"
+                  >
                     <span className="text-ink-soft">{k}</span>
                     <span className="shrink-0 font-bold">{v}</span>
                   </li>
                 ))}
               </ul>
-              <p className="mt-3 text-[11px] text-muted-foreground">Bookings that break a rule become an exception for Maya.</p>
+              <p className="mt-3 text-[11px] text-muted-foreground">
+                Bookings that break a rule become an exception for Maya.
+              </p>
             </section>
 
             <section className="rounded-[12px] border border-border bg-surface-strong p-5">
               <h2 className="label-eyebrow">Handled without you</h2>
               <ul className="mt-3 space-y-2.5 text-sm text-ink-soft">
                 <li className="flex gap-2.5">
-                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-sage" />
-                  A customer moved Thursday&apos;s bath to Wednesday — route impact +2 min.
+                  <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-sage" />A customer moved
+                  Thursday&apos;s bath to Wednesday — route impact +2 min.
                 </li>
                 <li className="flex gap-2.5">
                   <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-sage" />
@@ -393,7 +468,11 @@ function ExceptionDetail({
     exception.kind === "behavior"
       ? [
           { label: "Approve booking", icon: CheckCircle2, done: "Booking approved" },
-          { label: "Require consultation first", icon: CalendarCheck, done: "Consultation required" },
+          {
+            label: "Require consultation first",
+            icon: CalendarCheck,
+            done: "Consultation required",
+          },
           { label: "Decline", icon: XCircle, done: "Declined" },
         ]
       : [
@@ -412,7 +491,7 @@ function ExceptionDetail({
         <ArrowLeft className="size-3.5" /> Back to dashboard
       </button>
 
-       <div className="mt-4 rounded-lg border border-amber/70 bg-amber/12 p-5">
+      <div className="mt-4 rounded-lg border border-amber/70 bg-amber/12 p-5">
         <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-foreground">
           <AlertTriangle className="size-4" />
           Needs your decision
@@ -423,26 +502,28 @@ function ExceptionDetail({
         </p>
       </div>
 
-       <div className="mt-5 grid gap-4 sm:grid-cols-2">
-         <section className="panel p-5">
-           <p className="label-eyebrow">Customer note</p>
-           <blockquote className="mt-2 text-base font-semibold leading-relaxed text-foreground">
-             {exception.quote}
-           </blockquote>
-         </section>
-         <section className="rounded-lg border border-amber/70 bg-amber/12 p-5">
-           <p className="label-eyebrow text-amber-foreground">System summary</p>
-           <p className="mt-2 font-display text-xl leading-snug">{exception.summary}</p>
-         </section>
-       </div>
-       {exception.kind === "behavior" ? (
-         <div className="mt-4 rounded-lg border border-amber/70 bg-amber/12 p-4">
-           <p className="label-eyebrow text-amber-foreground">Why this needs a human</p>
-           <p className="mt-1.5 text-sm font-semibold">Handling risk affects safety and should not be auto-approved.</p>
-         </div>
-       ) : null}
-       <div className="mt-4 border-y border-border py-4">
-         <ul className="space-y-2.5">
+      <div className="mt-5 grid gap-4 sm:grid-cols-2">
+        <section className="panel p-5">
+          <p className="label-eyebrow">Customer note</p>
+          <blockquote className="mt-2 text-base font-semibold leading-relaxed text-foreground">
+            {exception.quote}
+          </blockquote>
+        </section>
+        <section className="rounded-lg border border-amber/70 bg-amber/12 p-5">
+          <p className="label-eyebrow text-amber-foreground">System summary</p>
+          <p className="mt-2 font-display text-xl leading-snug">{exception.summary}</p>
+        </section>
+      </div>
+      {exception.kind === "behavior" ? (
+        <div className="mt-4 rounded-lg border border-amber/70 bg-amber/12 p-4">
+          <p className="label-eyebrow text-amber-foreground">Why this needs a human</p>
+          <p className="mt-1.5 text-sm font-semibold">
+            Handling risk affects safety and should not be auto-approved.
+          </p>
+        </div>
+      ) : null}
+      <div className="mt-4 border-y border-border py-4">
+        <ul className="space-y-2.5">
           {exception.detail.map((d) => (
             <li key={d} className="flex gap-2.5 text-sm text-ink-soft">
               <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-sage" />
