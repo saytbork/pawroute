@@ -18,7 +18,13 @@ export type Scenario = {
   slots: Slot[];
 };
 
-export type RouteStop = { area: string; time: string; dog: string; driveIn?: string; isNew?: boolean };
+export type RouteStop = {
+  area: string;
+  time: string;
+  dog: string;
+  driveIn?: string;
+  isNew?: boolean;
+};
 
 export type Slot = {
   id: string;
@@ -33,7 +39,7 @@ export type Slot = {
   nextStop?: string;
   travelAdded?: string;
   preferenceMatch?: string;
-  impact?: "low" | "medium" | "high";
+  impact?: "low" | "medium" | "high" | "unknown";
   blocked?: boolean;
   whyNot?: [string, string];
   routeDelta?: string;
@@ -89,7 +95,10 @@ const baseSlots: Slot[] = [
     preferenceMatch: "Works",
     impact: "high",
     blocked: true,
-    whyNot: ["This time is open, but I don't recommend it.", "+31 min driving, backtracking across the route."],
+    whyNot: [
+      "This time is open, but I don't recommend it.",
+      "+31 min driving, backtracking across the route.",
+    ],
   },
 ];
 
@@ -147,7 +156,11 @@ export const scenarios: Scenario[] = [
     },
     missing: [
       { id: "address", question: "Exact address for the van", placeholder: "e.g. 88 Ash St" },
-      { id: "medical", question: "Medical notes or medication", placeholder: "Daily anti-inflammatory" },
+      {
+        id: "medical",
+        question: "Medical notes or medication",
+        placeholder: "Daily anti-inflammatory",
+      },
     ],
     quote: [
       { line: "Senior gentle groom", detail: "Bath, ears, light trim", amount: 78 },
@@ -162,9 +175,45 @@ export const scenarios: Scenario[] = [
       "Have medication notes ready for the groomer",
     ],
     slots: [
-      { impact: "low", preferenceMatch: "Perfect match", id: "s1", day: "Monday", date: "Oct 6", time: "9:00 AM", finish: "10:00 AM", travelMin: 6, reason: "First stop of the day, calmest for a senior dog", tag: "Best fit", nearby: "Van starts 2.2 km away" },
-      { impact: "medium", preferenceMatch: "Good", id: "s2", day: "Wednesday", date: "Oct 8", time: "10:15 AM", finish: "11:15 AM", travelMin: 10, reason: "Works with your morning preference", tag: "Good fit", nearby: "Previous stop: Corydon Ave" },
-      { impact: "medium", preferenceMatch: "Works", id: "s3", day: "Thursday", date: "Oct 9", time: "8:45 AM", finish: "9:45 AM", travelMin: 7, reason: "Quiet start, extra rest breaks built in", tag: "Available", nearby: "Van starts 2.6 km away" },
+      {
+        impact: "low",
+        preferenceMatch: "Perfect match",
+        id: "s1",
+        day: "Monday",
+        date: "Oct 6",
+        time: "9:00 AM",
+        finish: "10:00 AM",
+        travelMin: 6,
+        reason: "First stop of the day, calmest for a senior dog",
+        tag: "Best fit",
+        nearby: "Van starts 2.2 km away",
+      },
+      {
+        impact: "medium",
+        preferenceMatch: "Good",
+        id: "s2",
+        day: "Wednesday",
+        date: "Oct 8",
+        time: "10:15 AM",
+        finish: "11:15 AM",
+        travelMin: 10,
+        reason: "Works with your morning preference",
+        tag: "Good fit",
+        nearby: "Previous stop: Corydon Ave",
+      },
+      {
+        impact: "medium",
+        preferenceMatch: "Works",
+        id: "s3",
+        day: "Thursday",
+        date: "Oct 9",
+        time: "8:45 AM",
+        finish: "9:45 AM",
+        travelMin: 7,
+        reason: "Quiet start, extra rest breaks built in",
+        tag: "Available",
+        nearby: "Van starts 2.6 km away",
+      },
     ],
   },
   {
@@ -199,9 +248,45 @@ export const scenarios: Scenario[] = [
       "Have the vaccination card ready",
     ],
     slots: [
-      { impact: "low", preferenceMatch: "Perfect match", id: "p1", day: "Saturday", date: "Oct 11", time: "4:30 PM", finish: "5:15 PM", travelMin: 7, reason: "Last stop near your street", tag: "Best fit", nearby: "Previous stop: Provencher Blvd" },
-      { impact: "medium", preferenceMatch: "Good", id: "p2", day: "Tuesday", date: "Oct 7", time: "4:45 PM", finish: "5:30 PM", travelMin: 11, reason: "Works with your late-afternoon preference", tag: "Good fit", nearby: "Previous stop: St. Vital" },
-      { impact: "medium", preferenceMatch: "Works", id: "p3", day: "Friday", date: "Oct 10", time: "5:00 PM", finish: "5:45 PM", travelMin: 9, reason: "Quiet end of day for a nervous first-timer", tag: "Available", nearby: "Previous stop: Windsor Park" },
+      {
+        impact: "low",
+        preferenceMatch: "Perfect match",
+        id: "p1",
+        day: "Saturday",
+        date: "Oct 11",
+        time: "4:30 PM",
+        finish: "5:15 PM",
+        travelMin: 7,
+        reason: "Last stop near your street",
+        tag: "Best fit",
+        nearby: "Previous stop: Provencher Blvd",
+      },
+      {
+        impact: "medium",
+        preferenceMatch: "Good",
+        id: "p2",
+        day: "Tuesday",
+        date: "Oct 7",
+        time: "4:45 PM",
+        finish: "5:30 PM",
+        travelMin: 11,
+        reason: "Works with your late-afternoon preference",
+        tag: "Good fit",
+        nearby: "Previous stop: St. Vital",
+      },
+      {
+        impact: "medium",
+        preferenceMatch: "Works",
+        id: "p3",
+        day: "Friday",
+        date: "Oct 10",
+        time: "5:00 PM",
+        finish: "5:45 PM",
+        travelMin: 9,
+        reason: "Quiet end of day for a nervous first-timer",
+        tag: "Available",
+        nearby: "Previous stop: Windsor Park",
+      },
     ],
   },
   {
@@ -238,9 +323,45 @@ export const scenarios: Scenario[] = [
       "Separate the dogs so each can come out one at a time",
     ],
     slots: [
-      { impact: "low", preferenceMatch: "Perfect match", id: "t1", day: "Wednesday", date: "Oct 8", time: "1:00 PM", finish: "3:15 PM", travelMin: 5, reason: "Long block already open on the Corydon route", tag: "Best fit", nearby: "Previous stop: Grant Ave" },
-      { impact: "medium", preferenceMatch: "Good", id: "t2", day: "Thursday", date: "Oct 9", time: "12:45 PM", finish: "3:00 PM", travelMin: 10, reason: "Only other day with a 135-minute window", tag: "Good fit", nearby: "Previous stop: Osborne Village" },
-      { impact: "medium", preferenceMatch: "Works", id: "t3", day: "Monday", date: "Oct 13", time: "1:30 PM", finish: "3:45 PM", travelMin: 8, reason: "Next week, with a wider buffer for two dogs", tag: "Available", nearby: "Previous stop: River Heights" },
+      {
+        impact: "low",
+        preferenceMatch: "Perfect match",
+        id: "t1",
+        day: "Wednesday",
+        date: "Oct 8",
+        time: "1:00 PM",
+        finish: "3:15 PM",
+        travelMin: 5,
+        reason: "Long block already open on the Corydon route",
+        tag: "Best fit",
+        nearby: "Previous stop: Grant Ave",
+      },
+      {
+        impact: "medium",
+        preferenceMatch: "Good",
+        id: "t2",
+        day: "Thursday",
+        date: "Oct 9",
+        time: "12:45 PM",
+        finish: "3:00 PM",
+        travelMin: 10,
+        reason: "Only other day with a 135-minute window",
+        tag: "Good fit",
+        nearby: "Previous stop: Osborne Village",
+      },
+      {
+        impact: "medium",
+        preferenceMatch: "Works",
+        id: "t3",
+        day: "Monday",
+        date: "Oct 13",
+        time: "1:30 PM",
+        finish: "3:45 PM",
+        travelMin: 8,
+        reason: "Next week, with a wider buffer for two dogs",
+        tag: "Available",
+        nearby: "Previous stop: River Heights",
+      },
     ],
   },
 ];
@@ -325,8 +446,7 @@ export const exceptions: Exception[] = [
     customer: "Dana R. · Fort Richmond",
     dog: "Rocco · Border Collie · 48 lb",
     summary: "Potential handling risk detected.",
-    quote:
-      "\"He snapped once during a previous nail trim.\"",
+    quote: '"He snapped once during a previous nail trim."',
     detail: [
       "PawRoute flagged the inquiry before quoting — no deposit was requested",
       "Suggested: 20-minute meet-and-greet before the first full groom",
@@ -340,7 +460,7 @@ export const exceptions: Exception[] = [
     customer: "Priya S. · Oak Bluff",
     dog: "Nala · Bernese Mountain Dog · 84 lb",
     summary: "18 km past the St. Norbert boundary — travel fee needs approval.",
-    quote: "\"We're just off the Perimeter near Oak Bluff, is that too far for you?\"",
+    quote: '"We\'re just off the Perimeter near Oak Bluff, is that too far for you?"',
     detail: [
       "Extra drive time: 22 min each way, only viable as a last stop",
       "Suggested travel fee: $28 added to the quote",
@@ -351,8 +471,36 @@ export const exceptions: Exception[] = [
 ];
 
 export const todaysRoute = [
-  { time: "9:00 AM", area: "River Heights", dog: "Luna", service: "Bath + tidy", drive: "First stop", status: "done" },
-  { time: "11:15 AM", area: "Corydon", dog: "Max", service: "Full groom", drive: "9 min drive", status: "done" },
-  { time: "2:30 PM", area: "St. Vital", dog: "Bailey", service: "Full groom + nails", drive: "8 min drive", status: "next" },
-  { time: "4:30 PM", area: "St. Boniface", dog: "Coco", service: "Puppy groom", drive: "11 min drive", status: "upcoming" },
+  {
+    time: "9:00 AM",
+    area: "River Heights",
+    dog: "Luna",
+    service: "Bath + tidy",
+    drive: "First stop",
+    status: "done",
+  },
+  {
+    time: "11:15 AM",
+    area: "Corydon",
+    dog: "Max",
+    service: "Full groom",
+    drive: "9 min drive",
+    status: "done",
+  },
+  {
+    time: "2:30 PM",
+    area: "St. Vital",
+    dog: "Bailey",
+    service: "Full groom + nails",
+    drive: "8 min drive",
+    status: "next",
+  },
+  {
+    time: "4:30 PM",
+    area: "St. Boniface",
+    dog: "Coco",
+    service: "Puppy groom",
+    drive: "11 min drive",
+    status: "upcoming",
+  },
 ];
