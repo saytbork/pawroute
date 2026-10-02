@@ -19,7 +19,9 @@ import {
   Sparkles,
   Timer,
 } from "lucide-react";
-import { SiteHeader } from "@/components/pawroute/brand";
+import { DemoBanner, SiteHeader } from "@/components/pawroute/brand";
+import { DemoGate } from "@/components/pawroute/demo-gate";
+import { getPublicConfig } from "@/lib/booking.functions";
 import { SlotCard } from "@/components/pawroute/slot-card";
 import { scenarios, rescheduleSlots, type Scenario, type Slot } from "@/lib/pawroute-data";
 
@@ -42,7 +44,15 @@ export const Route = createFileRoute("/book")({
       { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
-  component: CustomerFlow,
+  loader: () => getPublicConfig(),
+  component: function Gated() {
+    const cfg = Route.useLoaderData();
+    return (
+      <DemoGate mode={cfg.mode}>
+        <CustomerFlow />
+      </DemoGate>
+    );
+  },
 });
 
 type Step = "intake" | "extract" | "slots" | "quote" | "confirmed" | "reschedule";
@@ -71,10 +81,7 @@ function CustomerFlow() {
     if (step !== "intake") topRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [step]);
 
-  const total = useMemo(
-    () => scenario.quote.reduce((sum, l) => sum + l.amount, 0),
-    [scenario],
-  );
+  const total = useMemo(() => scenario.quote.reduce((sum, l) => sum + l.amount, 0), [scenario]);
   const deposit = Math.round(total * 0.25);
 
   function submit(source?: Scenario) {
@@ -100,6 +107,7 @@ function CustomerFlow() {
   return (
     <div className="min-h-screen bg-background">
       <SiteHeader active="customer" />
+      <DemoBanner />
       <div ref={topRef} />
 
       {step === "intake" ? (
@@ -244,16 +252,19 @@ function IntakeScreen({
             We&apos;ll find the right visit.
           </h1>
           <p className="mt-3 max-w-xl border-l-2 border-teal pl-3 font-display text-lg leading-snug text-foreground sm:text-xl">
-            PawRoute doesn&apos;t just find an open time. It finds the appointment that best fits your day.
+            PawRoute doesn&apos;t just find an open time. It finds the appointment that best fits
+            your day.
           </p>
 
           <div className="mt-4 flex flex-wrap items-center gap-1.5 text-xs font-bold">
-            {["Dog", "service", "duration", "location", "route", "customer preference"].map((x, i) => (
-              <span key={x} className="flex items-center gap-1.5">
-                {i > 0 ? <span className="text-muted-foreground">+</span> : null}
-                <span className="rounded-md border border-border bg-surface px-2 py-1">{x}</span>
-              </span>
-            ))}
+            {["Dog", "service", "duration", "location", "route", "customer preference"].map(
+              (x, i) => (
+                <span key={x} className="flex items-center gap-1.5">
+                  {i > 0 ? <span className="text-muted-foreground">+</span> : null}
+                  <span className="rounded-md border border-border bg-surface px-2 py-1">{x}</span>
+                </span>
+              ),
+            )}
           </div>
 
           <div className="mt-5 rounded-lg border border-primary/30 bg-surface p-4 shadow-[var(--shadow-lift)] sm:p-5">
@@ -261,7 +272,9 @@ function IntakeScreen({
               <label htmlFor="inquiry" className="label-eyebrow">
                 Your message to Maya
               </label>
-              <p className="text-xs font-bold text-teal">Tell us once. PawRoute handles the rest.</p>
+              <p className="text-xs font-bold text-teal">
+                Tell us once. PawRoute handles the rest.
+              </p>
             </div>
             <textarea
               id="inquiry"
@@ -348,12 +361,25 @@ function UnderstoodPreview({ scenario }: { scenario: Scenario }) {
   );
 }
 
-function PreviewRow({ label, value, sub, emphasized }: { label: string; value: string; sub?: string; emphasized?: boolean }) {
+function PreviewRow({
+  label,
+  value,
+  sub,
+  emphasized,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  emphasized?: boolean;
+}) {
   return (
     <div className="grid grid-cols-[100px_minmax(0,1fr)] items-center gap-4 py-3">
       <dt className="text-[11px] font-bold uppercase text-muted-foreground">{label}</dt>
-      <dd className={`min-w-0 text-right text-sm font-bold ${emphasized ? "text-teal" : "text-foreground"}`}>
-        {value}{sub ? <span className="ml-2 font-medium text-muted-foreground">· {sub}</span> : null}
+      <dd
+        className={`min-w-0 text-right text-sm font-bold ${emphasized ? "text-teal" : "text-foreground"}`}
+      >
+        {value}
+        {sub ? <span className="ml-2 font-medium text-muted-foreground">· {sub}</span> : null}
       </dd>
     </div>
   );
@@ -369,9 +395,7 @@ function FlowProgress({ step }: { step: Step }) {
         <span key={s} className="flex items-center gap-2">
           <span
             className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 ${
-              i <= activeIndex
-                ? "bg-secondary text-secondary-foreground"
-                : "text-muted-foreground"
+              i <= activeIndex ? "bg-secondary text-secondary-foreground" : "text-muted-foreground"
             }`}
           >
             {i < activeIndex ? <CheckCircle2 className="size-3.5" /> : null}
@@ -614,10 +638,12 @@ function SlotsStep({
         blurb="PawRoute ranks appointments by route impact, service duration and customer preference."
       />
 
-       <div className="flex items-center gap-2 rounded-lg border border-border bg-surface-strong px-4 py-2.5 text-xs text-ink-soft">
+      <div className="flex items-center gap-2 rounded-lg border border-border bg-surface-strong px-4 py-2.5 text-xs text-ink-soft">
         <RouteIcon className="size-4 text-teal" />
         <span>
-          <strong className="text-foreground">{slots.length} open times evaluated against the existing route.</strong>{" "}
+          <strong className="text-foreground">
+            {slots.length} open times evaluated against the existing route.
+          </strong>{" "}
           {slots.filter((x) => x.blocked).length > 0
             ? `${slots.filter((x) => x.blocked).length} rejected. 1 recommended.`
             : "1 recommended."}
@@ -636,7 +662,9 @@ function SlotsStep({
         ))}
       </div>
 
-      {selected ? <RouteImpact key={selected.id} slot={selected} dog={scenario.extraction.dogName} /> : null}
+      {selected ? (
+        <RouteImpact key={selected.id} slot={selected} dog={scenario.extraction.dogName} />
+      ) : null}
 
       <button
         type="button"
@@ -655,13 +683,20 @@ function RouteImpact({ slot, dog }: { slot: Slot; dog: string }) {
   return (
     <div className="animate-in fade-in slide-in-from-bottom-1 rounded-lg border border-border bg-surface-strong p-4 duration-300">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="label-eyebrow text-teal">Route impact · {slot.day.slice(0, 3)} {slot.time}</p>
-        <span className="text-[10px] font-semibold uppercase text-muted-foreground">Example route</span>
+        <p className="label-eyebrow text-teal">
+          Route impact · {slot.day.slice(0, 3)} {slot.time}
+        </p>
+        <span className="text-[10px] font-semibold uppercase text-muted-foreground">
+          Example route
+        </span>
       </div>
       {slot.strip ? (
         <ol className="mt-3 flex flex-col gap-1 sm:flex-row sm:items-stretch sm:gap-0">
           {slot.strip.map((stop, i) => (
-            <li key={stop.area} className="flex flex-col gap-1 sm:flex-1 sm:flex-row sm:items-center sm:gap-0">
+            <li
+              key={stop.area}
+              className="flex flex-col gap-1 sm:flex-1 sm:flex-row sm:items-center sm:gap-0"
+            >
               {i > 0 ? (
                 <span className="flex items-center gap-2 pl-4 text-xs font-bold text-teal sm:w-20 sm:shrink-0 sm:flex-col sm:gap-0.5 sm:pl-0">
                   <span className="h-4 w-px bg-teal sm:h-px sm:w-full" aria-hidden="true" />
@@ -670,12 +705,18 @@ function RouteImpact({ slot, dog }: { slot: Slot; dog: string }) {
               ) : null}
               <span
                 className={`flex-1 rounded-md border px-3 py-2 text-sm ${
-                  stop.isNew ? "animate-in zoom-in-95 border-2 border-primary bg-accent/70 duration-500" : "border-border bg-surface"
+                  stop.isNew
+                    ? "animate-in zoom-in-95 border-2 border-primary bg-accent/70 duration-500"
+                    : "border-border bg-surface"
                 }`}
               >
-                <span className="block text-[11px] font-bold uppercase text-muted-foreground">{stop.area}</span>
+                <span className="block text-[11px] font-bold uppercase text-muted-foreground">
+                  {stop.area}
+                </span>
                 <span className="font-bold tabular-nums">{stop.time}</span> {stop.dog}
-                {stop.isNew ? <span className="ml-1.5 text-[10px] font-extrabold uppercase text-teal">New</span> : null}
+                {stop.isNew ? (
+                  <span className="ml-1.5 text-[10px] font-extrabold uppercase text-teal">New</span>
+                ) : null}
               </span>
             </li>
           ))}
@@ -718,7 +759,10 @@ function QuoteStep({
       <div className="panel overflow-hidden">
         <div className="divide-y divide-border">
           {scenario.quote.map((l) => (
-            <div key={l.line} className="flex items-start justify-between gap-4 px-4 py-3.5 sm:px-5">
+            <div
+              key={l.line}
+              className="flex items-start justify-between gap-4 px-4 py-3.5 sm:px-5"
+            >
               <div className="min-w-0">
                 <p className="text-sm font-bold">{l.line}</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">{l.detail}</p>
@@ -744,8 +788,8 @@ function QuoteStep({
             {slot.day}, {slot.date} · {slot.time} – {slot.finish}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            {scenario.extraction.durationMin} min visit · {slot.travelMin} min travel from Maya&apos;s
-            previous stop
+            {scenario.extraction.durationMin} min visit · {slot.travelMin} min travel from
+            Maya&apos;s previous stop
           </p>
         </div>
       ) : null}
@@ -753,12 +797,14 @@ function QuoteStep({
       <div className="rounded-lg border border-sage/60 bg-accent/35 p-4 sm:p-5">
         <p className="label-eyebrow text-teal">PawRoute has already handled</p>
         <ul className="mt-3 grid grid-cols-2 gap-2 text-sm font-semibold sm:grid-cols-3">
-          {["Service", "Duration", "Service zone", "Route fit", "Best slot", "Quote"].map((item) => (
-            <li key={item} className="flex items-center gap-2">
-              <CheckCircle2 className="size-4 shrink-0 text-sage" />
-              {item}
-            </li>
-          ))}
+          {["Service", "Duration", "Service zone", "Route fit", "Best slot", "Quote"].map(
+            (item) => (
+              <li key={item} className="flex items-center gap-2">
+                <CheckCircle2 className="size-4 shrink-0 text-sage" />
+                {item}
+              </li>
+            ),
+          )}
         </ul>
       </div>
 
@@ -794,11 +840,23 @@ function QuoteStep({
   );
 }
 
-function PriceTotal({ label, value, emphasized }: { label: string; value: string; emphasized?: boolean }) {
+function PriceTotal({
+  label,
+  value,
+  emphasized,
+}: {
+  label: string;
+  value: string;
+  emphasized?: boolean;
+}) {
   return (
     <div className="min-w-0">
       <p className="text-[10px] font-bold uppercase text-muted-foreground">{label}</p>
-      <p className={`mt-1 font-display text-xl sm:text-2xl ${emphasized ? "text-teal" : "text-foreground"}`}>{value}</p>
+      <p
+        className={`mt-1 font-display text-xl sm:text-2xl ${emphasized ? "text-teal" : "text-foreground"}`}
+      >
+        {value}
+      </p>
       <p className="text-[10px] text-muted-foreground">CAD</p>
     </div>
   );
@@ -838,17 +896,27 @@ function ConfirmedStep({
         ) : null}
         {rescheduled ? (
           <div className="mt-4 grid grid-cols-2 gap-3 border-t border-sage/50 pt-3 text-xs">
-            <p><span className="font-bold text-foreground">Route impact</span><br />{slot?.routeDelta ?? "+2 min"}</p>
-            <p><span className="font-bold text-foreground">Status</span><br />Still route-compatible</p>
+            <p>
+              <span className="font-bold text-foreground">Route impact</span>
+              <br />
+              {slot?.routeDelta ?? "+2 min"}
+            </p>
+            <p>
+              <span className="font-bold text-foreground">Status</span>
+              <br />
+              Still route-compatible
+            </p>
           </div>
         ) : null}
         <p className="mt-4 flex flex-wrap gap-x-3 gap-y-1 border-t border-sage/50 pt-3 text-xs font-semibold">
-          {["Route checked", "Quote created", "Deposit recorded", "Confirmation sent"].map((item) => (
-            <span key={item} className="flex items-center gap-1.5">
-              <CheckCircle2 className="size-3.5 shrink-0 text-sage" />
-              {item}
-            </span>
-          ))}
+          {["Route checked", "Quote created", "Deposit recorded", "Confirmation sent"].map(
+            (item) => (
+              <span key={item} className="flex items-center gap-1.5">
+                <CheckCircle2 className="size-3.5 shrink-0 text-sage" />
+                {item}
+              </span>
+            ),
+          )}
         </p>
         <Link
           to="/owner"
@@ -857,7 +925,6 @@ function ConfirmedStep({
           See what Maya sees <ArrowRight className="size-4" />
         </Link>
       </div>
-
 
       <div className="panel divide-y divide-border">
         <Detail label="Dog" value={`${e.dogName} · ${e.breed}`} />
@@ -873,7 +940,11 @@ function ConfirmedStep({
         <Detail label="Address" value={answers["address"] || `${e.location}, Winnipeg MB`} />
         <Detail label="Service" value={e.service} />
         <Detail label="Estimated duration" value={`${e.durationMin} min`} />
-        <Detail label="Deposit paid" value={`$${deposit.toFixed(2)} CAD`} sub="Balance due after the groom" />
+        <Detail
+          label="Deposit paid"
+          value={`$${deposit.toFixed(2)} CAD`}
+          sub="Balance due after the groom"
+        />
       </div>
 
       <div className="panel p-5">
@@ -916,7 +987,9 @@ function ConfirmedStep({
 function Detail({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 px-4 py-3.5 sm:px-5">
-      <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">{label}</p>
+      <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+        {label}
+      </p>
       <div className="text-right">
         <p className="text-sm font-bold">{value}</p>
         {sub ? <p className="text-xs text-muted-foreground">{sub}</p> : null}
@@ -957,7 +1030,12 @@ function RescheduleStep({
       />
       <div className="space-y-3">
         {rescheduleSlots.map((s) => (
-          <SlotCard key={s.id} slot={s} selected={picked?.id === s.id} onSelect={() => setPicked(s)} />
+          <SlotCard
+            key={s.id}
+            slot={s}
+            selected={picked?.id === s.id}
+            onSelect={() => setPicked(s)}
+          />
         ))}
       </div>
       <div className="flex flex-col gap-3 sm:flex-row">
