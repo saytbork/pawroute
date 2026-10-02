@@ -25,13 +25,13 @@ import { exceptions, todaysRoute, type Exception } from "@/lib/pawroute-data";
 export const Route = createFileRoute("/owner")({
   head: () => ({
     meta: [
-      { title: "Owner dashboard — PawRoute operations" },
+      { title: "PawRoute — Owner dashboard" },
       {
         name: "description",
         content:
           "Maya's PawRoute dashboard: what was automated today, the exceptions that need a decision, and the optimised route for the van.",
       },
-      { property: "og:title", content: "Owner dashboard — PawRoute operations" },
+      { property: "og:title", content: "PawRoute — Owner dashboard" },
       {
         property: "og:description",
         content:
@@ -70,7 +70,7 @@ function OwnerDashboard() {
       <main className="mx-auto w-full max-w-[1280px] px-4 pb-20 pt-7 sm:px-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div className="min-w-0">
-             <p className="label-eyebrow">Saturday, October 4 · Demo day</p>
+             <p className="label-eyebrow">Saturday, October 4 · Example workflow</p>
             <h1 className="mt-1 text-3xl sm:text-4xl">Good morning, Maya.</h1>
           </div>
           <span className="inline-flex items-center gap-2 rounded-full border border-sage/60 bg-accent/50 px-3 py-1.5 text-xs font-bold text-teal">
@@ -94,7 +94,7 @@ function OwnerDashboard() {
               <div className="mt-4 border-t border-primary/20 pt-4">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p className="label-eyebrow text-teal">Today&apos;s route</p>
-                  <span className="rounded border border-amber/60 bg-amber/15 px-2 py-0.5 text-[11px] font-extrabold uppercase text-amber-foreground">Demo route comparison · simulated</span>
+                  <span className="rounded border border-amber/60 bg-amber/15 px-2 py-0.5 text-[11px] font-extrabold uppercase text-amber-foreground">Example route comparison</span>
                 </div>
                 <p className="mt-1.5 font-display text-lg leading-snug">River Heights → Corydon → St. Vital → St. Boniface</p>
                 <div className="mt-3 flex flex-wrap items-end gap-x-6 gap-y-2">
@@ -107,7 +107,7 @@ function OwnerDashboard() {
                     Drive time avoided: <span className="font-display text-2xl text-teal">46 min</span>
                   </p>
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">Naive booking order vs PawRoute order, demo route only.</p>
+                <p className="mt-1 text-xs text-muted-foreground">Naive booking order vs PawRoute order, example route.</p>
               </div>
             </section>
 
@@ -165,7 +165,7 @@ function OwnerDashboard() {
             </section>
 
             <section className="rounded-lg border border-border bg-surface p-4">
-              <p className="label-eyebrow text-teal">Demo day · simulated operations</p>
+              <p className="label-eyebrow text-teal">Example workflow</p>
               <div className="mt-3 grid grid-cols-2 divide-x divide-y divide-border sm:grid-cols-4 sm:divide-y-0">
                 {[
                   ["18", "Manual touches avoided"],
@@ -294,7 +294,7 @@ function OwnerDashboard() {
 
               <div className="mt-5 grid grid-cols-2 gap-3 border-t border-border pt-4">
                 <Metric icon={Navigation} label="Total drive time" value="48 min" />
-                <Metric icon={CarFront} label="Drive time avoided" value="46 min (demo)" />
+                <Metric icon={CarFront} label="Drive time avoided" value="46 min (example)" />
                 <Metric icon={RouteIcon} label="Route order" value="Optimized" />
                 <Metric icon={Gauge} label="Schedule" value="Running on time" />
               </div>
@@ -336,7 +336,7 @@ function OwnerDashboard() {
                 </li>
               </ul>
               <Link
-                to="/"
+                to="/book"
                 className="mt-4 inline-flex items-center gap-1.5 text-xs font-bold text-teal underline-offset-4 hover:underline"
               >
                 See the customer booking flow
