@@ -5,6 +5,7 @@ const impactStyle = {
   low: "bg-primary text-primary-foreground",
   medium: "bg-muted text-foreground",
   high: "bg-amber/30 text-amber-foreground",
+  unknown: "bg-muted text-muted-foreground",
 } as const;
 
 export function SlotCard({
@@ -23,7 +24,7 @@ export function SlotCard({
     .replace(/^Van starts\s*/i, "Starts ");
   const blocked = Boolean(slot.blocked);
   const impact = slot.impact ?? "low";
-  const travel = slot.travelAdded ?? `+${slot.travelMin} min`;
+  const travel = slot.travelAdded ?? (slot.travelMin ? `+${slot.travelMin} min` : "—");
   const best = impact === "low" && !blocked;
 
   const shell = blocked
@@ -52,25 +53,38 @@ export function SlotCard({
         className={`flex h-full w-full flex-col rounded-lg p-4 text-left transition-all ${shell}`}
       >
         <div className="flex items-start justify-between gap-2">
-          <span className={`text-xs font-extrabold uppercase ${blocked ? "text-amber-foreground" : "text-teal"}`}>
+          <span
+            className={`text-xs font-extrabold uppercase ${blocked ? "text-amber-foreground" : "text-teal"}`}
+          >
             {slot.tag ?? "Available"}
           </span>
           {blocked ? (
             <Ban className="size-5 shrink-0 text-amber-foreground" />
           ) : (
-            <span className={`grid size-5 shrink-0 place-items-center rounded-full border ${selected ? "border-primary bg-primary" : "border-border"}`}>
+            <span
+              className={`grid size-5 shrink-0 place-items-center rounded-full border ${selected ? "border-primary bg-primary" : "border-border"}`}
+            >
               {selected ? <Check className="size-3 text-primary-foreground" /> : null}
             </span>
           )}
         </div>
-        <p className={`mt-1 font-display leading-tight ${best ? "text-3xl" : "text-2xl"} ${blocked ? "text-ink-soft" : ""}`}>
+        <p
+          className={`mt-1 font-display leading-tight ${best ? "text-3xl" : "text-2xl"} ${blocked ? "text-ink-soft" : ""}`}
+        >
           {slot.day.slice(0, 3)} {slot.time}
         </p>
-        <p className={`mt-2 font-display text-xl leading-none ${impact === "high" ? "text-amber-foreground" : "text-foreground"}`}>
-          {travel} <span className="font-sans text-xs font-bold text-muted-foreground">{blocked ? "driving" : "travel"}</span>
+        <p
+          className={`mt-2 font-display text-xl leading-none ${impact === "high" ? "text-amber-foreground" : "text-foreground"}`}
+        >
+          {travel}{" "}
+          <span className="font-sans text-xs font-bold text-muted-foreground">
+            {blocked ? "driving" : "travel"}
+          </span>
         </p>
-        <span className={`mt-2 w-fit rounded px-2 py-1 text-[11px] font-extrabold uppercase ${impactStyle[impact]}`}>
-          {impact} route impact
+        <span
+          className={`mt-2 w-fit rounded px-2 py-1 text-[11px] font-extrabold uppercase ${impactStyle[impact]}`}
+        >
+          {impact === "unknown" ? "route not checked" : `${impact} route impact`}
         </span>
         <p className="mt-3 text-sm font-semibold leading-snug">{slot.reason}</p>
         <p className="mt-1 text-xs text-muted-foreground">
@@ -91,14 +105,20 @@ export function SlotCard({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-1.5">
-            <span className={`text-xs font-extrabold uppercase ${blocked ? "text-amber-foreground" : "text-teal"}`}>
+            <span
+              className={`text-xs font-extrabold uppercase ${blocked ? "text-amber-foreground" : "text-teal"}`}
+            >
               {slot.tag ?? "Available"}
             </span>
-            <span className={`rounded px-1.5 py-0.5 text-[11px] font-extrabold uppercase ${impactStyle[impact]}`}>
-              {impact} route impact
+            <span
+              className={`rounded px-1.5 py-0.5 text-[11px] font-extrabold uppercase ${impactStyle[impact]}`}
+            >
+              {impact === "unknown" ? "route not checked" : `${impact} route impact`}
             </span>
           </div>
-          <p className={`mt-1 font-display text-xl leading-tight ${blocked ? "text-ink-soft" : ""}`}>
+          <p
+            className={`mt-1 font-display text-xl leading-tight ${blocked ? "text-ink-soft" : ""}`}
+          >
             {slot.day.slice(0, 3)} · {slot.time}
           </p>
           <p className="mt-1.5 text-sm text-ink-soft">{slot.reason}</p>
@@ -106,7 +126,9 @@ export function SlotCard({
         {blocked ? (
           <Ban className="size-5 shrink-0 text-amber-foreground" />
         ) : (
-          <span className={`grid size-5 shrink-0 place-items-center rounded-full border ${selected ? "border-primary bg-primary" : "border-border"}`}>
+          <span
+            className={`grid size-5 shrink-0 place-items-center rounded-full border ${selected ? "border-primary bg-primary" : "border-border"}`}
+          >
             {selected ? <Check className="size-3 text-primary-foreground" /> : null}
           </span>
         )}
@@ -122,7 +144,17 @@ export function SlotCard({
   );
 }
 
-function Meta({ icon: Icon, label, value, strong }: { icon: typeof Car; label: string; value: string; strong?: boolean }) {
+function Meta({
+  icon: Icon,
+  label,
+  value,
+  strong,
+}: {
+  icon: typeof Car;
+  label: string;
+  value: string;
+  strong?: boolean;
+}) {
   return (
     <span className="flex items-start gap-1.5">
       <Icon className="mt-0.5 size-3.5 shrink-0 text-teal" />
